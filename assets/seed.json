@@ -1,0 +1,148 @@
+{
+  "topics": {
+    "do_shingles_vaccine": {
+      "type": "do",
+      "label": "Get the shingles vaccine",
+      "inputs": [
+        "zip",
+        "plan_type"
+      ],
+      "what_you_get": "Shingles vaccine at a retail pharmacy or your doctor's office.",
+      "cost_band": "Usually $0 with Part D or MA-PD; may vary by pharmacy.",
+      "steps": [
+        {
+          "id": "step1",
+          "text": "Go to an in-network or preferred pharmacy and ask for Shingrix."
+        },
+        {
+          "id": "step2",
+          "text": "Show your Part D or MA-PD card."
+        },
+        {
+          "id": "step3",
+          "text": "Dose 2 in 2 to 6 months."
+        }
+      ],
+      "heads_up": [
+        "Some plans require a preferred pharmacy for $0.",
+        "If billed under Part B in clinic, typical coinsurance applies after deductible."
+      ],
+      "followups": {
+        "suggested": [
+          "Why might this cost more than $0?",
+          "What if my pharmacy is out of network?",
+          "Can I do mail order instead?"
+        ],
+        "explanations": {
+          "step1": "Preferred pharmacies often have lower copays. Ask if yours is preferred.",
+          "step2": "Pharmacy needs your RxBIN and PCN from the card.",
+          "step3": "You need two doses. Set a reminder for dose 2."
+        }
+      },
+      "sources": [
+        "CMS preventive schedule 2025",
+        "Plan Evidence of Coverage exemplar"
+      ]
+    },
+    "do_get_mri": {
+      "type": "do",
+      "label": "Get an MRI",
+      "inputs": [
+        "zip",
+        "plan_type"
+      ],
+      "what_you_get": "MRI ordered by your clinician at an imaging center or hospital.",
+      "cost_band": "Original Medicare: 20% after Part B deductible. MA-PD varies by plan.",
+      "steps": [
+        {
+          "id": "step1",
+          "text": "Confirm if prior authorization is needed for your plan."
+        },
+        {
+          "id": "step2",
+          "text": "Choose an in-network imaging center."
+        },
+        {
+          "id": "step3",
+          "text": "Schedule and bring your order/referral."
+        }
+      ],
+      "heads_up": [
+        "Hospital imaging can cost more than freestanding centers.",
+        "Some MA plans require prior auth."
+      ],
+      "followups": {
+        "suggested": [
+          "Do I need prior auth?",
+          "How do I estimate my cost?",
+          "What codes should I ask for?"
+        ],
+        "explanations": {
+          "step1": "Call the number on your card and ask if MRI requires prior auth under your plan.",
+          "step2": "Use your plan's provider finder to avoid out-of-network charges.",
+          "step3": "Bring your medication list and any metal implant information."
+        }
+      },
+      "sources": [
+        "CMS Part B services overview",
+        "Typical MA prior auth policies"
+      ]
+    },
+    "learn_deductible_vs_coinsurance": {
+      "type": "learn",
+      "label": "Deductible vs coinsurance",
+      "what_this_means": [
+        "Deductible is the amount you pay each year before coverage starts.",
+        "Coinsurance is the percent you pay after the deductible is met."
+      ],
+      "why_it_matters": [
+        "Part B services often have 20% coinsurance after the deductible."
+      ],
+      "example": "If deductible is $240 and MRI is $1100, you pay $240 + 20% of $860 = $172.",
+      "key_terms": [
+        "deductible",
+        "coinsurance",
+        "copay"
+      ],
+      "link_do": [
+        "do_get_mri"
+      ]
+    },
+    "learn_part_b_overview": {
+      "type": "learn",
+      "label": "What Part B covers",
+      "what_this_means": [
+        "Part B helps pay for outpatient care like doctor visits, imaging, lab tests, and durable medical equipment."
+      ],
+      "why_it_matters": [
+        "Many services under Part B have 20% coinsurance after the deductible."
+      ],
+      "example": "Annual wellness visits and many preventive screenings are often $0 under Part B.",
+      "key_terms": [
+        "preventive services",
+        "coinsurance",
+        "deductible"
+      ],
+      "link_do": [
+        "do_get_mri"
+      ]
+    }
+  },
+  "routing_table": {
+    "shingles": "do_shingles_vaccine",
+    "zoster": "do_shingles_vaccine",
+    "mri": "do_get_mri",
+    "coinsurance": "learn_deductible_vs_coinsurance",
+    "part b": "learn_part_b_overview"
+  },
+  "preferred_pharmacy_rules": {
+    "MA-PD": [
+      "CVS",
+      "Rite Aid"
+    ],
+    "PDP": [
+      "Walgreens",
+      "Costco"
+    ]
+  }
+}
