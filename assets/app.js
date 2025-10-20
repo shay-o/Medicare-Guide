@@ -23,10 +23,19 @@ function todayISO() {
 }
 
 async function loadData() {
-  const res = await fetch("assets/seed.json");
-  state.data = await res.json();
-  $("last-reviewed").textContent = todayISO();
-  renderSuggestions();
+  try {
+    const res = await fetch("assets/seed.json");
+    if (!res.ok) {
+      throw new Error(`Failed to load data: ${res.status} ${res.statusText}`);
+    }
+    state.data = await res.json();
+    $("last-reviewed").textContent = todayISO();
+    renderSuggestions();
+    console.info("Data loaded successfully");
+  } catch (err) {
+    console.error("Error loading data:", err);
+    alert("Error loading data. If you're opening this file directly, please use a local web server instead.\n\nQuick fix:\n1. Open Terminal\n2. Navigate to the project folder\n3. Run: python3 -m http.server 8000\n4. Open http://localhost:8000 in your browser");
+  }
 }
 loadData();
 
@@ -54,6 +63,12 @@ function renderSuggestions() {
 
 // Routing
 $("route").addEventListener("click", () => {
+  // Check if data has loaded
+  if (!state.data || !state.data.topics || !state.data.routing_table) {
+    alert("Data is still loading. Please wait a moment and try again.");
+    return;
+  }
+
   state.plan = $("plan").value;
   state.zip = $("zip").value;
   const u = ($("utterance").value || "").toLowerCase().trim();
@@ -67,7 +82,7 @@ $("route").addEventListener("click", () => {
     topic = Object.entries(state.data.topics).find(([id, t]) => t.type === state.intent)?.[0] || null;
   }
   if (!topic) {
-    alert("I could not figure that out. Pick a topic below.");
+    alert("I could not figure that out. Please:\n• Click 'I want to do something' or 'I want to learn', then try again\n• Or enter a keyword like 'shingles', 'mri', or 'coinsurance'\n• Or pick a topic below");
     return;
   }
   routeTo(topic);
