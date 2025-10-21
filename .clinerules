@@ -1,0 +1,51 @@
+# Medicare Guide Prototype
+
+This is a static single-page app helping Medicare beneficiaries understand benefits through guided tasks and educational content.
+
+## Stack
+- Vanilla JavaScript (assets/app.js) - All application logic
+- Tailwind CSS via CDN
+- JSON content database (assets/seed.json) - Content and routing
+
+## Key Concepts
+- **Free text + topic buttons**: Users can type keywords or click topic buttons (either/or interface with "OR" separator)
+- **Keyword routing**: Simple substring matching via routing_table in seed.json, with fallback to topic label search
+- **Dual card types**: Different renderers for "Do" cards (steps, costs, warnings) and "Learn" cards (definitions, examples, key terms)
+- **Q&A system**: Suggested questions, free-text input, micro-explanations ("Explain this step")
+- **Centralized state**: Simple state object drives all rendering
+- **No intent selection**: Removed "What would you like to do?" section - all topics shown together
+
+## Main Files
+- `index.html` - UI with Context (optional), topic selection, and Go button
+- `assets/app.js` - All application logic: routing, rendering, Q&A heuristics, event handlers
+- `assets/seed.json` - Content database with topics array and routing_table for keyword matching
+
+## Current Topics
+1. do_shingles_vaccine - Get the shingles vaccine (task)
+2. do_get_mri - Get an MRI (task)
+3. learn_deductible_vs_coinsurance - Educational content
+4. learn_part_b_overview - What Part B covers (educational)
+5. learn_medicare_parts - Understanding Medicare Parts A, B, C, D (educational) **[RECENTLY ADDED]**
+
+## Planned Educational Topics (based on CMS/Medicare.gov research)
+Content strategy: Building educational topics to help users understand coverage
+- [x] Understanding Medicare Parts (A, B, C, D) - ADDED
+- [ ] Out-of-Pocket Maximum (MOOP) - explains limits for MA ($9,350), Part D ($2,000), none for Original Medicare
+- [ ] Preventive Services Covered at No Cost - which services are free, requirements
+- [ ] Original Medicare vs Medicare Advantage - key differences in coverage, costs, networks
+- [ ] Copay vs Coinsurance vs Deductible - expand existing topic with 2025 numbers
+
+## User Flow
+1. (Optional) Enter ZIP and plan type in Context section
+2. Type a keyword/question OR click a topic button
+3. Click "Go" button
+4. App routes to matching topic (shows "No match found" error if no match)
+5. Card renders with relevant content
+6. User can ask follow-up questions or get step-by-step explanations
+
+## Design Principles
+- Guidance only, not benefits determination
+- Lightweight and dependency-free
+- Content-as-configuration (editable JSON)
+- Simple heuristic Q&A (can be enhanced with backend/LLM)
+- Content based on publicly available CMS/Medicare.gov documentation

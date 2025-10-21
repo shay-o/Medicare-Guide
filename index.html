@@ -13,19 +13,10 @@
     </header>
 
     <main class="max-w-3xl mx-auto p-4 space-y-4">
-      <!-- Intent Picker -->
-      <section class="bg-white rounded-2xl shadow p-4">
-        <h2 class="font-semibold mb-2">What would you like to do?</h2>
-        <div class="flex gap-3">
-          <button id="btnDo" class="px-3 py-2 rounded-xl border border-slate-300 hover:bg-slate-100">I want to do something</button>
-          <button id="btnLearn" class="px-3 py-2 rounded-xl border border-slate-300 hover:bg-slate-100">I want to learn</button>
-        </div>
-      </section>
-
       <!-- Intake -->
       <section class="bg-white rounded-2xl shadow p-4">
-        <h2 class="font-semibold mb-2">Quick intake</h2>
-        <div class="grid md:grid-cols-3 gap-3">
+        <h2 class="font-semibold mb-2">Context (optional)</h2>
+        <div class="grid md:grid-cols-2 gap-3">
           <div>
             <label class="block text-sm">ZIP code</label>
             <input id="zip" class="w-full border rounded-lg p-2" placeholder="94610" />
@@ -39,21 +30,27 @@
               <option value="PDP">Part D only (PDP)</option>
             </select>
           </div>
-          <div>
-            <label class="block text-sm">Enter a phrase (optional)</label>
-            <input id="utterance" class="w-full border rounded-lg p-2" placeholder="ex: shingles, MRI, coinsurance"/>
-          </div>
-        </div>
-        <div class="mt-3">
-          <button id="route" class="px-3 py-2 rounded-xl bg-blue-600 text-white">Go</button>
-          <span class="ml-2 text-sm text-slate-600">or pick a topic below</span>
         </div>
       </section>
 
       <!-- Topic suggestions -->
       <section class="bg-white rounded-2xl shadow p-4" id="suggestions">
-        <h2 class="font-semibold mb-2">Common topics</h2>
+        <h2 class="font-semibold mb-2">What would you like to know?</h2>
+        <div class="mb-3">
+          <input id="utterance" class="w-full border rounded-lg p-2" placeholder="Type your question here..."/>
+          <div id="matchError" class="text-sm text-red-600 mt-1 hidden">No match found. Please try again.</div>
+        </div>
+        <div class="flex items-center gap-3 my-3">
+          <div class="flex-1 border-t border-slate-300"></div>
+          <span class="text-sm text-slate-500">OR choose a topic</span>
+          <div class="flex-1 border-t border-slate-300"></div>
+        </div>
         <div class="flex flex-wrap gap-2" id="topicButtons"></div>
+      </section>
+
+      <!-- Go button -->
+      <section class="max-w-3xl mx-auto">
+        <button id="route" class="px-4 py-2 rounded-xl bg-blue-600 text-white hover:bg-blue-700">Go</button>
       </section>
 
       <!-- Card renderer -->

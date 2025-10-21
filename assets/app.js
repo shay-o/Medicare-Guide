@@ -39,24 +39,20 @@ async function loadData() {
 }
 loadData();
 
-// Intent handlers
-$("btnDo").addEventListener("click", () => { state.intent = "do"; highlightIntent(); });
-$("btnLearn").addEventListener("click", () => { state.intent = "learn"; highlightIntent(); });
-
-function highlightIntent() {
-  $("btnDo").classList.toggle("bg-blue-50", state.intent === "do");
-  $("btnLearn").classList.toggle("bg-blue-50", state.intent === "learn");
-}
-
 // Suggestions
 function renderSuggestions() {
   const wrap = $("topicButtons");
   wrap.innerHTML = "";
   const entries = Object.entries(state.data.topics);
-  const visible = entries.filter(([key, t]) => !state.intent || t.type === state.intent);
-  for (const [key, t] of visible) {
+  // Show all topics since we no longer have intent filtering
+  for (const [key, t] of entries) {
     const b = el("button", "px-3 py-2 rounded-xl border border-slate-300 hover:bg-slate-100", t.label || key);
-    b.addEventListener("click", () => routeTo(key));
+    b.addEventListener("click", () => {
+      // Clear text input and hide error when topic button is clicked
+      $("utterance").value = "";
+      $("matchError").classList.add("hidden");
+      routeTo(key);
+    });
     wrap.appendChild(b);
   }
 }
@@ -69,23 +65,57 @@ $("route").addEventListener("click", () => {
     return;
   }
 
+  // Hide any previous error message
+  $("matchError").classList.add("hidden");
+
   state.plan = $("plan").value;
   state.zip = $("zip").value;
   const u = ($("utterance").value || "").toLowerCase().trim();
-  const table = state.data.routing_table || {};
-  let topic = null;
-  for (const [k, v] of Object.entries(table)) {
-    if (u.includes(k)) { topic = v; break; }
+
+  // Only try to match if user entered text
+  if (u) {
+    console.info("Attempting to match user input:", u);
+    const table = state.data.routing_table || {};
+    let topic = null;
+
+    // First, try routing table keywords
+    console.info("Routing table:", table);
+    for (const [k, v] of Object.entries(table)) {
+      console.info("Checking if", u, "includes", k);
+      if (u.includes(k)) {
+        topic = v;
+        console.info("Match found:", topic);
+        break;
+      }
+    }
+
+    // If no match in routing table, search topic labels
+    if (!topic) {
+      console.info("No match in routing table, searching topic labels");
+      for (const [topicId, topicData] of Object.entries(state.data.topics)) {
+        const label = (topicData.label || "").toLowerCase();
+        if (label.includes(u) || u.includes(label)) {
+          topic = topicId;
+          console.info("Match found in labels:", topic);
+          break;
+        }
+      }
+    }
+
+    if (!topic) {
+      // Show error message
+      console.info("No match found");
+      $("matchError").classList.remove("hidden");
+      return;
+    }
+
+    console.info("Routing to topic:", topic);
+    routeTo(topic);
+  } else {
+    // No text entered - show error
+    $("matchError").textContent = "Please enter a topic or choose one below.";
+    $("matchError").classList.remove("hidden");
   }
-  if (!topic && state.intent) {
-    // fallback: first topic that matches intent
-    topic = Object.entries(state.data.topics).find(([id, t]) => t.type === state.intent)?.[0] || null;
-  }
-  if (!topic) {
-    alert("I could not figure that out. Please:\n• Click 'I want to do something' or 'I want to learn', then try again\n• Or enter a keyword like 'shingles', 'mri', or 'coinsurance'\n• Or pick a topic below");
-    return;
-  }
-  routeTo(topic);
 });
 
 function routeTo(topicId) {
@@ -113,7 +143,7 @@ function renderCard() {
   card.appendChild(header);
 
   const meta = el("div", "text-sm text-slate-600 mb-4");
-  meta.textContent = `Intent: ${topic.type.toUpperCase()} • ZIP: ${state.zip || "n/a"} • Plan: ${state.plan || "n/a"}`;
+  meta.textContent = `ZIP: ${state.zip || "n/a"} • Plan: ${state.plan || "n/a"}`;
   card.appendChild(meta);
 
   if (topic.type === "do") {

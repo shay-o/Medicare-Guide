@@ -126,6 +126,41 @@
       "link_do": [
         "do_get_mri"
       ]
+    },
+    "learn_medicare_parts": {
+      "type": "learn",
+      "label": "Understanding Medicare Parts A, B, C, D",
+      "what_this_means": [
+        "Part A (Hospital Insurance) covers inpatient hospital care, skilled nursing facility care, hospice care, and some home health care.",
+        "Part B (Medical Insurance) covers doctors' services, outpatient care, medical supplies, and preventive services.",
+        "Part C (Medicare Advantage) is an alternative to Original Medicare offered by private insurance companies, bundling Parts A, B, and usually D.",
+        "Part D (Prescription Drug Coverage) helps cover the cost of prescription drugs and vaccines."
+      ],
+      "why_it_matters": [
+        "Understanding which part covers what helps you know where to get care and estimate your costs.",
+        "Original Medicare (Parts A & B) has no out-of-pocket maximum, while Medicare Advantage (Part C) plans do.",
+        "You need to enroll in Part D separately if you have Original Medicare and want drug coverage."
+      ],
+      "example": "If you go to the hospital, Part A covers your stay. Your follow-up doctor visits are covered by Part B. Your medications might be covered by Part D.",
+      "key_terms": [
+        "Part A",
+        "Part B",
+        "Part C",
+        "Part D",
+        "Original Medicare",
+        "Medicare Advantage"
+      ],
+      "followups": {
+        "suggested": [
+          "What's the difference between Original Medicare and Medicare Advantage?",
+          "Do I need all four parts?",
+          "How much do the different parts cost?"
+        ]
+      },
+      "sources": [
+        "CMS Overview of Medicare 2025",
+        "Medicare.gov Parts of Medicare"
+      ]
     }
   },
   "routing_table": {
@@ -133,7 +168,14 @@
     "zoster": "do_shingles_vaccine",
     "mri": "do_get_mri",
     "coinsurance": "learn_deductible_vs_coinsurance",
-    "part b": "learn_part_b_overview"
+    "part b": "learn_part_b_overview",
+    "parts": "learn_medicare_parts",
+    "part a": "learn_medicare_parts",
+    "part c": "learn_medicare_parts",
+    "part d": "learn_medicare_parts",
+    "medicare parts": "learn_medicare_parts",
+    "medicare advantage": "learn_medicare_parts",
+    "original medicare": "learn_medicare_parts"
   },
   "preferred_pharmacy_rules": {
     "MA-PD": [
