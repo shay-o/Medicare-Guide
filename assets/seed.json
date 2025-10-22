@@ -1,190 +1,237 @@
 {
-  "topics": {
-    "do_shingles_vaccine": {
-      "type": "do",
-      "label": "Get the shingles vaccine",
-      "inputs": [
-        "zip",
-        "plan_type"
+  "topics": [
+    {
+      "id": "learn_preventive_services_overview",
+      "kind": "learn",
+      "title": "Medicare preventive services overview",
+      "summary": "Part B covers many preventive screenings and services. Costs are often $0 when criteria are met.",
+      "last_updated": "2025-10-21",
+      "source": "https://www.medicare.gov/coverage/preventive-screening-services",
+      "points": [
+        "Part B covers many preventive and screening services when eligibility and frequency limits are met.",
+        "Costs are often $0 if your provider accepts assignment and you meet criteria.",
+        "Use Medicare's list to check what's covered and how often."
       ],
-      "what_you_get": "Shingles vaccine at a retail pharmacy or your doctor's office.",
-      "cost_band": "Usually $0 with Part D or MA-PD; may vary by pharmacy.",
+      "followups": [
+        "Which screenings am I due for?",
+        "What does 'assignment' mean for costs?"
+      ]
+    },
+    {
+      "id": "do_schedule_annual_wellness_visit",
+      "kind": "do",
+      "title": "Schedule your Yearly Wellness Visit",
+      "summary": "Your annual wellness visit is free with Part B when your provider accepts assignment.",
+      "last_updated": "2025-10-21",
+      "source": "https://www.medicare.gov/coverage/yearly-wellness-visits",
       "steps": [
-        {
-          "id": "step1",
-          "text": "Go to an in-network or preferred pharmacy and ask for Shingrix."
-        },
-        {
-          "id": "step2",
-          "text": "Show your Part D or MA-PD card."
-        },
-        {
-          "id": "step3",
-          "text": "Dose 2 in 2 to 6 months."
-        }
+        "Confirm you have Part B and that your provider accepts assignment.",
+        "Ask the office to schedule a 'Medicare Annual Wellness Visit', not a routine physical.",
+        "Bring your medicines list and complete any health risk assessments the office sends."
       ],
-      "heads_up": [
-        "Some plans require a preferred pharmacy for $0.",
-        "If billed under Part B in clinic, typical coinsurance applies after deductible."
-      ],
-      "followups": {
-        "suggested": [
-          "Why might this cost more than $0?",
-          "What if my pharmacy is out of network?",
-          "Can I do mail order instead?"
-        ],
-        "explanations": {
-          "step1": "Preferred pharmacies often have lower copays. Ask if yours is preferred.",
-          "step2": "Pharmacy needs your RxBIN and PCN from the card.",
-          "step3": "You need two doses. Set a reminder for dose 2."
-        }
-      },
-      "sources": [
-        "CMS preventive schedule 2025",
-        "Plan Evidence of Coverage exemplar"
+      "followups": [
+        "What is the difference between a physical and a wellness visit?"
       ]
     },
-    "do_get_mri": {
-      "type": "do",
-      "label": "Get an MRI",
-      "inputs": [
-        "zip",
-        "plan_type"
-      ],
-      "what_you_get": "MRI ordered by your clinician at an imaging center or hospital.",
-      "cost_band": "Original Medicare: 20% after Part B deductible. MA-PD varies by plan.",
+    {
+      "id": "do_welcome_to_medicare_visit",
+      "kind": "do",
+      "title": "Get your 'Welcome to Medicare' visit",
+      "summary": "One-time preventive visit within 12 months of Part B enrollment.",
+      "last_updated": "2025-10-21",
+      "source": "https://www.medicare.gov/coverage/welcome-to-medicare-preventive-visit",
       "steps": [
-        {
-          "id": "step1",
-          "text": "Confirm if prior authorization is needed for your plan."
-        },
-        {
-          "id": "step2",
-          "text": "Choose an in-network imaging center."
-        },
-        {
-          "id": "step3",
-          "text": "Schedule and bring your order/referral."
-        }
+        "Check you are within 12 months of enrolling in Part B.",
+        "Call your provider and request the 'Welcome to Medicare' visit (IPPE).",
+        "Bring prior records and a list of providers, conditions, and medicines."
       ],
-      "heads_up": [
-        "Hospital imaging can cost more than freestanding centers.",
-        "Some MA plans require prior auth."
-      ],
-      "followups": {
-        "suggested": [
-          "Do I need prior auth?",
-          "How do I estimate my cost?",
-          "What codes should I ask for?"
-        ],
-        "explanations": {
-          "step1": "Call the number on your card and ask if MRI requires prior auth under your plan.",
-          "step2": "Use your plan's provider finder to avoid out-of-network charges.",
-          "step3": "Bring your medication list and any metal implant information."
-        }
-      },
-      "sources": [
-        "CMS Part B services overview",
-        "Typical MA prior auth policies"
+      "followups": [
+        "What does the visit include?",
+        "What will I pay if my provider orders extra tests?"
       ]
     },
-    "learn_deductible_vs_coinsurance": {
-      "type": "learn",
-      "label": "Deductible vs coinsurance",
-      "what_this_means": [
-        "Deductible is the amount you pay each year before coverage starts.",
-        "Coinsurance is the percent you pay after the deductible is met."
+    {
+      "id": "do_get_shingles_vaccine",
+      "kind": "do",
+      "title": "Get the shingles (Shingrix) vaccine",
+      "summary": "Part D covers ACIP-recommended adult vaccines with no copay or deductible.",
+      "last_updated": "2025-10-21",
+      "source": "https://www.medicare.gov/coverage/shingles-shots",
+      "steps": [
+        "Call your pharmacy to confirm they can bill your Part D plan for Shingrix.",
+        "Bring your Part D card or Medicare Advantage card to the pharmacy.",
+        "Schedule the second dose 2\u20136 months after the first dose."
       ],
-      "why_it_matters": [
-        "Part B services often have 20% coinsurance after the deductible."
-      ],
-      "example": "If deductible is $240 and MRI is $1100, you pay $240 + 20% of $860 = $172.",
-      "key_terms": [
-        "deductible",
-        "coinsurance",
-        "copay"
-      ],
-      "link_do": [
-        "do_get_mri"
+      "followups": [
+        "Is Shingrix covered with $0 cost to me?",
+        "Can I get this at my doctor's office instead of a pharmacy?"
       ]
     },
-    "learn_part_b_overview": {
-      "type": "learn",
-      "label": "What Part B covers",
-      "what_this_means": [
-        "Part B helps pay for outpatient care like doctor visits, imaging, lab tests, and durable medical equipment."
+    {
+      "id": "learn_vaccines_part_d_zero_copay",
+      "kind": "learn",
+      "title": "Adult vaccines under Part D",
+      "summary": "Part D plans cover ACIP-recommended adult vaccines at $0 cost to you.",
+      "last_updated": "2025-10-21",
+      "source": "https://www.medicare.gov/publications/10110-your-guide-to-medicare-preventive-services.pdf",
+      "points": [
+        "Part D covers ACIP-recommended adult vaccines like shingles, RSV, Tdap, and MMR.",
+        "Plans cannot charge a copay or apply a deductible for these recommended vaccines."
       ],
-      "why_it_matters": [
-        "Many services under Part B have 20% coinsurance after the deductible."
-      ],
-      "example": "Annual wellness visits and many preventive screenings are often $0 under Part B.",
-      "key_terms": [
-        "preventive services",
-        "coinsurance",
-        "deductible"
-      ],
-      "link_do": [
-        "do_get_mri"
+      "followups": [
+        "Where should I get these shots billed to Part D?",
+        "How do I check if a specific vaccine is recommended by ACIP?"
       ]
     },
-    "learn_medicare_parts": {
-      "type": "learn",
-      "label": "Understanding Medicare Parts A, B, C, D",
-      "what_this_means": [
-        "Part A (Hospital Insurance) covers inpatient hospital care, skilled nursing facility care, hospice care, and some home health care.",
-        "Part B (Medical Insurance) covers doctors' services, outpatient care, medical supplies, and preventive services.",
-        "Part C (Medicare Advantage) is an alternative to Original Medicare offered by private insurance companies, bundling Parts A, B, and usually D.",
-        "Part D (Prescription Drug Coverage) helps cover the cost of prescription drugs and vaccines."
+    {
+      "id": "learn_telehealth_rules_2025",
+      "kind": "learn",
+      "title": "Telehealth rules through and after Sep 30, 2025",
+      "summary": "Temporary broader telehealth access lasts through Sep 30, 2025. Most non-behavioral services narrow after that.",
+      "last_updated": "2025-10-21",
+      "source": "https://www.medicare.gov/coverage/telehealth",
+      "points": [
+        "Through Sep 30, 2025, you can get many telehealth services from any location, including home.",
+        "Starting Oct 1, 2025, most non-behavioral telehealth services require you to be in a medical facility in a rural area.",
+        "Behavioral/mental health telehealth has permanent flexibilities (including audio-only in some cases)."
       ],
-      "why_it_matters": [
-        "Understanding which part covers what helps you know where to get care and estimate your costs.",
-        "Original Medicare (Parts A & B) has no out-of-pocket maximum, while Medicare Advantage (Part C) plans do.",
-        "You need to enroll in Part D separately if you have Original Medicare and want drug coverage."
+      "followups": [
+        "Will my Medicare Advantage plan keep broader telehealth access?",
+        "Can my clinic do audio-only visits for behavioral health?"
+      ]
+    },
+    {
+      "id": "learn_snf_coverage",
+      "kind": "learn",
+      "title": "Skilled Nursing Facility (SNF) coverage basics",
+      "summary": "Part A covers up to 100 days per benefit period when eligibility rules are met.",
+      "last_updated": "2025-10-21",
+      "source": "https://www.medicare.gov/coverage/skilled-nursing-facility-care",
+      "points": [
+        "Part A covers up to 100 days of SNF care per benefit period if you meet eligibility.",
+        "A benefit period ends after 60 days without SNF or inpatient hospital care.",
+        "Costs vary by day ranges; long-term custodial care is not covered."
       ],
-      "example": "If you go to the hospital, Part A covers your stay. Your follow-up doctor visits are covered by Part B. Your medications might be covered by Part D.",
-      "key_terms": [
-        "Part A",
-        "Part B",
-        "Part C",
-        "Part D",
-        "Original Medicare",
-        "Medicare Advantage"
+      "followups": [
+        "What are my daily costs in 2025?",
+        "What if I need help with activities of daily living long term?"
+      ]
+    },
+    {
+      "id": "learn_home_health_coverage",
+      "kind": "learn",
+      "title": "Home health coverage basics",
+      "summary": "Medicare covers certain part-time or intermittent home health services if you are eligible.",
+      "last_updated": "2025-10-21",
+      "source": "https://www.medicare.gov/coverage/home-health-services",
+      "points": [
+        "Coverage can be under Part A and/or Part B depending on your situation.",
+        "Generally up to 8 hours per day, 28 hours per week (with limited exceptions).",
+        "You pay $0 for covered home health services; other costs may apply for supplies or DME."
       ],
-      "followups": {
-        "suggested": [
-          "What's the difference between Original Medicare and Medicare Advantage?",
-          "Do I need all four parts?",
-          "How much do the different parts cost?"
-        ]
-      },
-      "sources": [
-        "CMS Overview of Medicare 2025",
-        "Medicare.gov Parts of Medicare"
+      "followups": [
+        "How do I find a Medicare-certified home health agency?",
+        "What are the eligibility requirements?"
+      ]
+    },
+    {
+      "id": "learn_hospice_overview",
+      "kind": "learn",
+      "title": "Hospice coverage overview",
+      "summary": "Part A covers hospice for people with a terminal illness, with defined benefit periods.",
+      "last_updated": "2025-10-21",
+      "source": "https://www.medicare.gov/coverage/hospice-care",
+      "points": [
+        "Part A covers hospice after your provider certifies a terminal illness.",
+        "Coverage includes two 90-day periods followed by unlimited 60-day periods.",
+        "You may pay 5% for inpatient respite care; most other hospice services are $0."
+      ],
+      "followups": [
+        "Can I change hospice providers?",
+        "What if I need care unrelated to my terminal illness?"
+      ]
+    },
+    {
+      "id": "learn_ambulance_coverage",
+      "kind": "learn",
+      "title": "Ambulance services coverage",
+      "summary": "Part B covers medically necessary ambulance transport; some non-emergency rides may require prior authorization.",
+      "last_updated": "2025-10-21",
+      "source": "https://www.medicare.gov/coverage/ambulance-services",
+      "points": [
+        "Part B covers ambulance when any other transportation could endanger your health.",
+        "Certain scheduled, non-emergency ambulance transports may require prior authorization.",
+        "If prior authorization is denied and you proceed, Medicare may deny the claim."
+      ],
+      "followups": [
+        "What does my share of the cost look like under Part B?",
+        "Does my Medicare Advantage plan have different rules?"
+      ]
+    },
+    {
+      "id": "learn_extra_help_overview",
+      "kind": "learn",
+      "title": "Extra Help for drug costs (Part D LIS)",
+      "summary": "Extra Help lowers Part D costs for people with limited income and resources.",
+      "last_updated": "2025-10-21",
+      "source": "https://www.medicare.gov/publications/12203-medicares-extra-help-program.pdf",
+      "points": [
+        "Extra Help can lower Part D premiums, deductibles, and copays, and removes the late-enrollment penalty while you have it.",
+        "Some people qualify automatically; others apply through Social Security."
+      ],
+      "followups": [
+        "How do I apply for Extra Help?",
+        "What are the 2025 income and resource limits?"
+      ]
+    },
+    {
+      "id": "do_apply_extra_help",
+      "kind": "do",
+      "title": "Apply for Extra Help (Part D)",
+      "summary": "Use Social Security to apply online or by phone. You can apply before or after enrolling in Part D.",
+      "last_updated": "2025-10-21",
+      "source": "https://www.ssa.gov/medicare/part-d-extra-help",
+      "steps": [
+        "Gather financial documents like bank statements and retirement account balances.",
+        "Apply online at SSA.gov for 'Part D Extra Help' or call Social Security.",
+        "If approved, your Part D costs may drop and late penalties are waived while you have Extra Help."
+      ],
+      "followups": [
+        "Can I reapply if my income changes?",
+        "Do I need to already be in a Part D plan?"
+      ]
+    },
+    {
+      "id": "learn_medicare_savings_programs",
+      "kind": "learn",
+      "title": "Medicare Savings Programs (QMB, SLMB, QI, QDWI)",
+      "summary": "State-run programs can pay Part A/B premiums and sometimes deductibles/coinsurance for eligible people.",
+      "last_updated": "2025-10-21",
+      "source": "https://www.medicare.gov/basics/costs/help/medicare-savings-programs",
+      "points": [
+        "Programs include QMB, SLMB, QI, and QDWI; eligibility is based on income and resources.",
+        "If you qualify for SLMB or QI, you also get Extra Help for Part D; 2025 capped copays can apply for covered drugs."
+      ],
+      "followups": [
+        "How do I apply in my state?",
+        "What are the 2025 limits for my household size?"
+      ]
+    },
+    {
+      "id": "learn_part_d_payment_plan",
+      "kind": "learn",
+      "title": "Part D Prescription Payment Plan (2025)",
+      "summary": "Option to spread out-of-pocket drug costs across the calendar year starting in 2025.",
+      "last_updated": "2025-10-21",
+      "source": "https://www.medicare.gov/publications/11109-Medicare-Drug-Coverage-Guide.pdf",
+      "points": [
+        "The payment plan spreads your out-of-pocket Part D costs across the year.",
+        "It does not lower drug prices; it changes when you pay."
+      ],
+      "followups": [
+        "How do I enroll or opt out mid-year?",
+        "Does this affect my Extra Help eligibility?"
       ]
     }
-  },
-  "routing_table": {
-    "shingles": "do_shingles_vaccine",
-    "zoster": "do_shingles_vaccine",
-    "mri": "do_get_mri",
-    "coinsurance": "learn_deductible_vs_coinsurance",
-    "part b": "learn_part_b_overview",
-    "parts": "learn_medicare_parts",
-    "part a": "learn_medicare_parts",
-    "part c": "learn_medicare_parts",
-    "part d": "learn_medicare_parts",
-    "medicare parts": "learn_medicare_parts",
-    "medicare advantage": "learn_medicare_parts",
-    "original medicare": "learn_medicare_parts"
-  },
-  "preferred_pharmacy_rules": {
-    "MA-PD": [
-      "CVS",
-      "Rite Aid"
-    ],
-    "PDP": [
-      "Walgreens",
-      "Costco"
-    ]
-  }
+  ]
 }

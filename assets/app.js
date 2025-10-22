@@ -43,15 +43,15 @@ loadData();
 function renderSuggestions() {
   const wrap = $("topicButtons");
   wrap.innerHTML = "";
-  const entries = Object.entries(state.data.topics);
+  const topics = state.data.topics || [];
   // Show all topics since we no longer have intent filtering
-  for (const [key, t] of entries) {
-    const b = el("button", "px-3 py-2 rounded-xl border border-slate-300 hover:bg-slate-100", t.label || key);
+  for (const t of topics) {
+    const b = el("button", "px-3 py-2 rounded-xl border border-slate-300 hover:bg-slate-100", t.title || t.id);
     b.addEventListener("click", () => {
       // Clear text input and hide error when topic button is clicked
       $("utterance").value = "";
       $("matchError").classList.add("hidden");
-      routeTo(key);
+      routeTo(t.id);
     });
     wrap.appendChild(b);
   }
@@ -60,7 +60,7 @@ function renderSuggestions() {
 // Routing
 $("route").addEventListener("click", () => {
   // Check if data has loaded
-  if (!state.data || !state.data.topics || !state.data.routing_table) {
+  if (!state.data || !state.data.topics) {
     alert("Data is still loading. Please wait a moment and try again.");
     return;
   }
@@ -75,42 +75,32 @@ $("route").addEventListener("click", () => {
   // Only try to match if user entered text
   if (u) {
     console.info("Attempting to match user input:", u);
-    const table = state.data.routing_table || {};
-    let topic = null;
+    let topicId = null;
 
-    // First, try routing table keywords
-    console.info("Routing table:", table);
-    for (const [k, v] of Object.entries(table)) {
-      console.info("Checking if", u, "includes", k);
-      if (u.includes(k)) {
-        topic = v;
-        console.info("Match found:", topic);
+    // Search through topics by title, summary, and id
+    console.info("Searching topics for match");
+    for (const topic of state.data.topics) {
+      const title = (topic.title || "").toLowerCase();
+      const summary = (topic.summary || "").toLowerCase();
+      const id = (topic.id || "").toLowerCase();
+
+      if (title.includes(u) || u.includes(title) ||
+          summary.includes(u) || id.includes(u)) {
+        topicId = topic.id;
+        console.info("Match found:", topicId);
         break;
       }
     }
 
-    // If no match in routing table, search topic labels
-    if (!topic) {
-      console.info("No match in routing table, searching topic labels");
-      for (const [topicId, topicData] of Object.entries(state.data.topics)) {
-        const label = (topicData.label || "").toLowerCase();
-        if (label.includes(u) || u.includes(label)) {
-          topic = topicId;
-          console.info("Match found in labels:", topic);
-          break;
-        }
-      }
-    }
-
-    if (!topic) {
+    if (!topicId) {
       // Show error message
       console.info("No match found");
       $("matchError").classList.remove("hidden");
       return;
     }
 
-    console.info("Routing to topic:", topic);
-    routeTo(topic);
+    console.info("Routing to topic:", topicId);
+    routeTo(topicId);
   } else {
     // No text entered - show error
     $("matchError").textContent = "Please enter a topic or choose one below.";
@@ -130,7 +120,8 @@ function routeTo(topicId) {
 
 // Card rendering
 function renderCard() {
-  const topic = state.data.topics[state.topic];
+  // Find topic by id
+  const topic = state.data.topics.find(t => t.id === state.topic);
   if (!topic) return;
 
   $("cardSection").classList.remove("hidden");
@@ -138,110 +129,63 @@ function renderCard() {
   card.innerHTML = "";
 
   const header = el("div", "mb-2");
-  const title = el("h2", "text-xl font-semibold", topic.label || state.topic);
+  const title = el("h2", "text-xl font-semibold", topic.title || state.topic);
   header.appendChild(title);
   card.appendChild(header);
 
+  // Add summary if present
+  if (topic.summary) {
+    const summary = el("p", "text-sm text-slate-600 mb-2", topic.summary);
+    card.appendChild(summary);
+  }
+
   const meta = el("div", "text-sm text-slate-600 mb-4");
   meta.textContent = `ZIP: ${state.zip || "n/a"} • Plan: ${state.plan || "n/a"}`;
+  if (topic.last_updated) {
+    meta.textContent += ` • Updated: ${topic.last_updated}`;
+  }
   card.appendChild(meta);
 
-  if (topic.type === "do") {
-    const what = el("p", "mb-2");
-    what.innerHTML = `<span class="font-semibold">What you get:</span> ${topic.what_you_get}`;
-    card.appendChild(what);
+  // Add source link if present
+  if (topic.source) {
+    const sourceLink = el("a", "text-sm text-blue-600 hover:underline mb-3 block", "View official source");
+    sourceLink.href = topic.source;
+    sourceLink.target = "_blank";
+    sourceLink.rel = "noopener";
+    card.appendChild(sourceLink);
+  }
 
-    const cost = el("p", "mb-3");
-    cost.innerHTML = `<span class="font-semibold">What it costs:</span> ${topic.cost_band} <span class="text-xs text-slate-500">(estimate)</span>`;
-    card.appendChild(cost);
-
+  if (topic.kind === "do") {
     const stepsH = el("h3", "font-semibold mt-3 mb-1", "What to do next");
     card.appendChild(stepsH);
 
     const steps = el("ol", "list-decimal ml-5 space-y-1");
-    topic.steps.forEach(s => {
-      const li = el("li", "leading-relaxed");
-      const explainBtn = el("button", "ml-2 text-xs px-2 py-0.5 rounded border border-slate-300 hover:bg-slate-100", "Explain this step");
-      explainBtn.addEventListener("click", () => showExplanation(s.id, topic));
-      li.textContent = s.text;
-      li.appendChild(explainBtn);
+    (topic.steps || []).forEach(stepText => {
+      const li = el("li", "leading-relaxed", stepText);
       steps.appendChild(li);
     });
     card.appendChild(steps);
-
-    if (topic.heads_up?.length) {
-      const huH = el("h3", "font-semibold mt-4 mb-1", "Heads up");
-      const hu = el("ul", "list-disc ml-5 space-y-1");
-      topic.heads_up.forEach(h => hu.appendChild(el("li", "", h)));
-      card.appendChild(huH);
-      card.appendChild(hu);
-    }
   } else {
     // Learn card
-    const whatH = el("h3", "font-semibold mt-2 mb-1", "What this means");
-    card.appendChild(whatH);
-    const what = el("ul", "list-disc ml-5 space-y-1");
-    topic.what_this_means?.forEach(t => what.appendChild(el("li","",t)));
-    card.appendChild(what);
-
-    const whyH = el("h3", "font-semibold mt-3 mb-1", "Why it matters");
-    card.appendChild(whyH);
-    const why = el("ul", "list-disc ml-5 space-y-1");
-    topic.why_it_matters?.forEach(t => why.appendChild(el("li","",t)));
-    card.appendChild(why);
-
-    if (topic.example) {
-      const exH = el("h3", "font-semibold mt-3 mb-1", "Example");
-      const ex = el("p", "mb-2", topic.example);
-      card.appendChild(exH);
-      card.appendChild(ex);
-    }
-
-    if (topic.key_terms?.length) {
-      const ktH = el("h3", "font-semibold mt-3 mb-1", "Key terms");
-      const kt = el("div", "flex flex-wrap gap-2");
-      topic.key_terms.forEach(k => {
-        const tag = el("span", "text-xs px-2 py-1 rounded-full border border-slate-300", k);
-        kt.appendChild(tag);
-      });
-      card.appendChild(ktH);
-      card.appendChild(kt);
-    }
-
-    if (topic.link_do?.length) {
-      const linkWrap = el("div", "mt-3");
-      const btn = el("button", "px-3 py-2 rounded-xl bg-blue-600 text-white", "Now help me do this");
-      btn.addEventListener("click", () => routeTo(topic.link_do[0]));
-      linkWrap.appendChild(btn);
-      card.appendChild(linkWrap);
-    }
+    const pointsH = el("h3", "font-semibold mt-2 mb-1", "Key points");
+    card.appendChild(pointsH);
+    const points = el("ul", "list-disc ml-5 space-y-1");
+    (topic.points || []).forEach(p => points.appendChild(el("li","",p)));
+    card.appendChild(points);
   }
 
   // Show QA section
   renderQA();
 }
 
-function showExplanation(stepId, topic) {
-  const text = topic.followups?.explanations?.[stepId] || "No details available.";
-  // append to QA thread as an 'Explain' event
-  state.qa.push({
-    q: `Explain step ${stepId}`,
-    a: text,
-    source: "explain",
-    ts: new Date().toISOString()
-  });
-  renderQA();
-  console.info("expand_explanation", { topic: state.topic, stepId });
-}
-
 // QA rendering
 function renderQA() {
   $("qaSection").classList.remove("hidden");
-  const topic = state.data.topics[state.topic];
+  const topic = state.data.topics.find(t => t.id === state.topic);
   // Suggested
   const sug = $("suggestedQ");
   sug.innerHTML = "";
-  (topic.followups?.suggested || []).forEach(q => {
+  (topic?.followups || []).forEach(q => {
     const b = el("button","px-3 py-2 rounded-xl border border-slate-300 hover:bg-slate-100 text-sm", q);
     b.addEventListener("click", () => answerQuestion(q));
     sug.appendChild(b);
@@ -268,7 +212,7 @@ $("askBtn").addEventListener("click", () => {
 });
 
 function answerQuestion(q) {
-  const topic = state.data.topics[state.topic];
+  const topic = state.data.topics.find(t => t.id === state.topic);
   // Very simple heuristic answers:
   let a = "Thanks for your question. ";
   if (/cost|price|\$0|free/i.test(q)) {
@@ -279,12 +223,10 @@ function answerQuestion(q) {
     a += "Using in-network providers helps avoid extra charges. Use your plan's provider finder.";
   } else if (/codes|cpt|hcpcs/i.test(q)) {
     a += "Ask your clinician for the CPT/HCPCS codes. You can share those with your plan to estimate costs.";
+  } else if (/apply|enroll|sign up/i.test(q)) {
+    a += "Check the official Medicare or Social Security website for enrollment information, or call 1-800-MEDICARE.";
   } else {
-    a += "Here are details related to this card. ";
-  }
-  // add topic-specific hint
-  if (topic.type === "do" && topic.followups?.explanations) {
-    a += " You can also tap 'Explain this step' for details on each action.";
+    a += "For more details, please check the official source link on this card or contact your plan directly.";
   }
 
   state.qa.push({ q, a, source: "qa", ts: new Date().toISOString() });
