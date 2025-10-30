@@ -1,18 +1,28 @@
 ## Zen 
-This is a project to help me learn about AI while simultaneously learning more about how software, AI and otherwise, can be used to help people access government services
+Learn AI while understanding how how software, AI and otherwise, can be used to help people access government services
 
 ## Goals
-Learn about AI so that I can apply it in job hunting and job execution
-- Standard Dev Tools with AI: Git Hub, VS Code, Python
-- AI tools: Claude Code, CoPilot, LLM Apps (ChatGPT, Gemini, Perplexitty)
-- Common AI architectures and techniques like MCP, agents and evals
-Gain domain knowledge about civic tech problem
-Learn about Civic Tech and how/if AI can be applied to it
-Help my own personal understanding of AI
+1. Learn core AI concepts and tooling to use in job search and on-the-job execution.
+2. Gain basic domain knowledge about Medicare services and how people access them
+3. Build a functioning prototype that demonstrates how AI can improve access to government services.
+4. Publish code, process, and findings that are credible to potential employers.
+
+## Tools
+- Standard dev tools: GitHub, VS Code, Python, a static server
+- AI tools: Claude Code, GitHub Copilot, ChatGPT, Gemini, Perplexity
+
+## Milestone plan
+- Week 1 – Frame problems and users, define content schema, seed 10 topics
+- Week 2 – Deterministic router, add 10 more topics, citations on all items
+- Week 3 – Build simple retrieval script and 50-item evaluation set
+- Week 4 – Run evaluations, fix failure modes, publish write-up and demo
 
 ## Outcomes
-Follow a structured schedule/curriculum
-Document my process and findings. 
-Publish the code and learnings on GitHub
-Code and findings I can share with potential employers
-Functioning prototype that can be used by anyone to get support in using government services. This will be proof-of-concept. Ideally it can be used for real problems but this is not necessary.
+- A public repo with:
+  - Working prototype site
+  - Clear documentation of approach and tradeoffs
+  - Example data and evaluators
+- A concise write-up suitable for portfolios and applications.
+
+
+
