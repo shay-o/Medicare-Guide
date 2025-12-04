@@ -1,0 +1,145 @@
+{
+  "version": "1.0",
+  "questions": [
+    {
+      "id": "Q001",
+      "question": "What is the standard Part B premium for 2024?",
+      "ground_truth": "The standard Part B premium for 2024 is $174.70 per month.",
+      "category": "costs",
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q002",
+      "question": "At what age can you first enroll in Medicare?",
+      "ground_truth": "You can first enroll in Medicare at age 65. You may also qualify before age 65 if you have certain disabilities or end-stage renal disease.",
+      "category": "eligibility",
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q003",
+      "question": "What is the Part A deductible for 2024?",
+      "ground_truth": "The Part A deductible for 2024 is $1,632 per benefit period for inpatient hospital stays.",
+      "category": "costs",
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q004",
+      "question": "What does Medicare Part A cover?",
+      "ground_truth": "Medicare Part A covers inpatient hospital care, skilled nursing facility care, hospice care, and some home health care.",
+      "category": "coverage",
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q005",
+      "question": "What is the Initial Enrollment Period for Medicare?",
+      "ground_truth": "The Initial Enrollment Period is a 7-month period that includes the 3 months before your 65th birthday month, your birthday month, and the 3 months after your birthday month.",
+      "category": "enrollment",
+      "difficulty": "medium"
+    },
+    {
+      "id": "Q006",
+      "question": "Do you need to have worked to qualify for premium-free Part A?",
+      "ground_truth": "To get premium-free Part A, you or your spouse must have worked and paid Medicare taxes for at least 10 years (40 quarters).",
+      "category": "eligibility",
+      "difficulty": "medium"
+    },
+    {
+      "id": "Q007",
+      "question": "What does Medicare Part B cover?",
+      "ground_truth": "Medicare Part B covers doctor visits, outpatient care, preventive services, medical equipment, and some home health care.",
+      "category": "coverage",
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q008",
+      "question": "When is the Annual Enrollment Period for Medicare?",
+      "ground_truth": "The Annual Enrollment Period runs from October 15 to December 7 each year, during which you can make changes to your Medicare coverage that take effect January 1.",
+      "category": "enrollment",
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q009",
+      "question": "What is the Part B deductible for 2024?",
+      "ground_truth": "The Part B deductible for 2024 is $240 per year.",
+      "category": "costs",
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q010",
+      "question": "Does Original Medicare cover prescription drugs?",
+      "ground_truth": "No, Original Medicare (Parts A and B) does not cover most prescription drugs. You need to enroll in a separate Part D prescription drug plan or a Medicare Advantage plan that includes drug coverage.",
+      "category": "coverage",
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q011",
+      "question": "Can you enroll in Medicare if you have employer coverage?",
+      "ground_truth": "Yes, you can enroll in Medicare even if you have employer coverage. However, if your employer has 20 or more employees, you can delay Part B enrollment without penalty while you have creditable employer coverage.",
+      "category": "eligibility",
+      "difficulty": "medium"
+    },
+    {
+      "id": "Q012",
+      "question": "What is the late enrollment penalty for Part B?",
+      "ground_truth": "The Part B late enrollment penalty is 10% of the premium for each 12-month period you were eligible but didn't enroll, and you must pay this penalty for as long as you have Part B.",
+      "category": "costs",
+      "difficulty": "medium"
+    },
+    {
+      "id": "Q013",
+      "question": "What is a Medicare Advantage plan?",
+      "ground_truth": "A Medicare Advantage plan (Part C) is a type of Medicare health plan offered by private insurance companies that contracts with Medicare to provide all Part A and Part B benefits. Most plans also include Part D prescription drug coverage.",
+      "category": "coverage",
+      "difficulty": "medium"
+    },
+    {
+      "id": "Q014",
+      "question": "What is the Medicare Savings Program?",
+      "ground_truth": "Medicare Savings Programs are state programs that help people with limited income and resources pay for Medicare premiums, deductibles, and coinsurance. There are several types including QMB, SLMB, and QI programs.",
+      "category": "costs",
+      "difficulty": "hard"
+    },
+    {
+      "id": "Q015",
+      "question": "When is the Special Enrollment Period for Medicare?",
+      "ground_truth": "A Special Enrollment Period allows you to enroll in Medicare outside the normal enrollment periods if you qualify due to certain life events, such as losing employer coverage, moving out of your plan's service area, or qualifying for Extra Help.",
+      "category": "enrollment",
+      "difficulty": "medium"
+    },
+    {
+      "id": "Q016",
+      "question": "Are you automatically enrolled in Medicare at age 65?",
+      "ground_truth": "You are automatically enrolled in Medicare Parts A and B at age 65 if you are already receiving Social Security or Railroad Retirement Board benefits. Otherwise, you need to sign up during your Initial Enrollment Period.",
+      "category": "eligibility",
+      "difficulty": "medium"
+    },
+    {
+      "id": "Q017",
+      "question": "Does Medicare cover dental care?",
+      "ground_truth": "Original Medicare does not cover most dental care, dental procedures, or dental supplies like cleanings, fillings, tooth extractions, or dentures. Some Medicare Advantage plans may offer dental coverage.",
+      "category": "coverage",
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q018",
+      "question": "What is Medigap?",
+      "ground_truth": "Medigap (Medicare Supplement Insurance) is a private insurance policy that helps pay some of the healthcare costs that Original Medicare doesn't cover, such as copayments, coinsurance, and deductibles.",
+      "category": "coverage",
+      "difficulty": "medium"
+    },
+    {
+      "id": "Q019",
+      "question": "Can you have both Medicare and Medicaid?",
+      "ground_truth": "Yes, you can have both Medicare and Medicaid at the same time. People who qualify for both are called dual eligibles. Medicaid can help pay for costs that Medicare doesn't cover, including Medicare premiums.",
+      "category": "eligibility",
+      "difficulty": "medium"
+    },
+    {
+      "id": "Q020",
+      "question": "What is the General Enrollment Period for Medicare?",
+      "ground_truth": "The General Enrollment Period runs from January 1 to March 31 each year. If you missed your Initial Enrollment Period, you can sign up during this time, with coverage beginning July 1. You may have to pay a late enrollment penalty.",
+      "category": "enrollment",
+      "difficulty": "medium"
+    }
+  ]
+}

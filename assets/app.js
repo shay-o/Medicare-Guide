@@ -1,235 +1,479 @@
+// Medicare LLM Evaluation System - Frontend
+
+const API_BASE = "http://localhost:8000/api";
 
 const state = {
-  intent: null, // 'do' or 'learn'
-  topic: null,
-  plan: "",
-  zip: "",
-  data: null,
-  qa: [],
-  last_card_id: null
+  models: [],
+  selectedModels: [],
+  currentRunId: null,
+  pollInterval: null
 };
 
 const $ = (id) => document.getElementById(id);
-const el = (tag, cls="", text="") => {
+
+// Helper to create elements
+const el = (tag, cls = "", text = "") => {
   const e = document.createElement(tag);
   if (cls) e.className = cls;
   if (text) e.textContent = text;
   return e;
 };
 
-function todayISO() {
-  const d = new Date();
-  return d.toISOString().slice(0,10);
+// Initialize app
+async function init() {
+  await loadModels();
+  setupEventListeners();
 }
 
-async function loadData() {
+// Load available models from API
+async function loadModels() {
   try {
-    const res = await fetch("assets/seed.json");
-    if (!res.ok) {
-      throw new Error(`Failed to load data: ${res.status} ${res.statusText}`);
-    }
-    state.data = await res.json();
-    $("last-reviewed").textContent = todayISO();
-    renderSuggestions();
-    console.info("Data loaded successfully");
+    const res = await fetch(`${API_BASE}/models`);
+    const data = await res.json();
+    state.models = data.models;
+    renderModelCheckboxes();
   } catch (err) {
-    console.error("Error loading data:", err);
-    alert("Error loading data. If you're opening this file directly, please use a local web server instead.\n\nQuick fix:\n1. Open Terminal\n2. Navigate to the project folder\n3. Run: python3 -m http.server 8000\n4. Open http://localhost:8000 in your browser");
+    console.error("Error loading models:", err);
+    alert("Failed to load models. Make sure the backend server is running on port 8000.");
   }
 }
-loadData();
 
-// Suggestions
-function renderSuggestions() {
-  const wrap = $("topicButtons");
-  wrap.innerHTML = "";
-  const topics = state.data.topics || [];
-  // Show all topics since we no longer have intent filtering
-  for (const t of topics) {
-    const b = el("button", "px-3 py-2 rounded-xl border border-slate-300 hover:bg-slate-100", t.title || t.id);
-    b.addEventListener("click", () => {
-      // Clear text input and hide error when topic button is clicked
-      $("utterance").value = "";
-      $("matchError").classList.add("hidden");
-      routeTo(t.id);
+// Render model checkboxes
+function renderModelCheckboxes() {
+  const container = $("modelCheckboxes");
+  container.innerHTML = "";
+
+  state.models.forEach(model => {
+    const wrapper = el("label", "flex items-center gap-2 cursor-pointer");
+
+    const checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    checkbox.value = model.id;
+    checkbox.className = "w-4 h-4";
+    checkbox.addEventListener("change", (e) => {
+      if (e.target.checked) {
+        state.selectedModels.push(model.id);
+      } else {
+        state.selectedModels = state.selectedModels.filter(id => id !== model.id);
+      }
+      updateRunButton();
     });
-    wrap.appendChild(b);
-  }
+
+    const label = el("span", "", `${model.name} (${model.id})`);
+
+    wrapper.appendChild(checkbox);
+    wrapper.appendChild(label);
+    container.appendChild(wrapper);
+  });
 }
 
-// Routing
-$("route").addEventListener("click", () => {
-  // Check if data has loaded
-  if (!state.data || !state.data.topics) {
-    alert("Data is still loading. Please wait a moment and try again.");
+// Update run button state
+function updateRunButton() {
+  const btn = $("runTestBtn");
+  btn.disabled = state.selectedModels.length === 0;
+}
+
+// Setup event listeners
+function setupEventListeners() {
+  $("runTestBtn").addEventListener("click", runTest);
+  $("cancelTestBtn").addEventListener("click", cancelTest);
+  $("loadHistoryBtn").addEventListener("click", loadTestHistory);
+}
+
+// Run test
+async function runTest() {
+  if (state.selectedModels.length === 0) {
+    alert("Please select at least one model");
     return;
   }
 
-  // Hide any previous error message
-  $("matchError").classList.add("hidden");
+  try {
+    // Disable button
+    $("runTestBtn").disabled = true;
+    $("runTestBtn").textContent = "Starting...";
 
-  state.plan = $("plan").value;
-  state.zip = $("zip").value;
-  const u = ($("utterance").value || "").toLowerCase().trim();
+    // Check if quick test is enabled
+    const quickTest = $("quickTestCheckbox").checked;
 
-  // Only try to match if user entered text
-  if (u) {
-    console.info("Attempting to match user input:", u);
-    let topicId = null;
+    // Start test
+    const res = await fetch(`${API_BASE}/test-runs`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        models: state.selectedModels,
+        quick_test: quickTest
+      })
+    });
 
-    // Search through topics by title, summary, and id
-    console.info("Searching topics for match");
-    for (const topic of state.data.topics) {
-      const title = (topic.title || "").toLowerCase();
-      const summary = (topic.summary || "").toLowerCase();
-      const id = (topic.id || "").toLowerCase();
+    const data = await res.json();
+    state.currentRunId = data.run_id;
 
-      if (title.includes(u) || u.includes(title) ||
-          summary.includes(u) || id.includes(u)) {
-        topicId = topic.id;
-        console.info("Match found:", topicId);
-        break;
-      }
+    // Show status section and cancel button
+    $("statusSection").classList.remove("hidden");
+    $("cancelTestBtn").classList.remove("hidden");
+    showStatus("running", "Test is running...");
+
+    // Start polling for updates
+    startPolling();
+
+  } catch (err) {
+    console.error("Error starting test:", err);
+    alert("Failed to start test: " + err.message);
+    $("cancelTestBtn").classList.add("hidden");
+    $("runTestBtn").disabled = false;
+    $("runTestBtn").textContent = "Run Test";
+  }
+}
+
+// Show status
+function showStatus(status, message) {
+  const indicator = $("statusIndicator");
+  indicator.innerHTML = "";
+
+  let icon, color, text;
+  if (status === "running") {
+    icon = "⏳";
+    color = "text-blue-600";
+    text = "Running";
+  } else if (status === "completed") {
+    icon = "✓";
+    color = "text-green-600";
+    text = "Completed";
+  } else if (status === "failed") {
+    icon = "✗";
+    color = "text-red-600";
+    text = "Failed";
+  }
+
+  const statusEl = el("div", `flex items-center gap-2 ${color} font-semibold`);
+  statusEl.innerHTML = `<span class="text-2xl">${icon}</span> <span>${text}</span>`;
+  indicator.appendChild(statusEl);
+
+  const messageEl = el("div", "text-slate-600", message);
+  $("progressInfo").innerHTML = "";
+  $("progressInfo").appendChild(messageEl);
+}
+
+// Start polling for test run updates
+function startPolling() {
+  if (state.pollInterval) {
+    clearInterval(state.pollInterval);
+  }
+
+  // Poll every 2 seconds
+  state.pollInterval = setInterval(async () => {
+    await updateTestRun();
+  }, 2000);
+
+  // Also update immediately
+  updateTestRun();
+}
+
+// Stop polling
+function stopPolling() {
+  if (state.pollInterval) {
+    clearInterval(state.pollInterval);
+    state.pollInterval = null;
+  }
+}
+
+// Cancel test
+function cancelTest() {
+  // Stop polling
+  stopPolling();
+
+  // Clear current run
+  state.currentRunId = null;
+
+  // Hide sections
+  $("statusSection").classList.add("hidden");
+  $("resultsSection").classList.add("hidden");
+  $("logsSection").classList.add("hidden");
+  $("cancelTestBtn").classList.add("hidden");
+
+  // Re-enable run button
+  $("runTestBtn").disabled = false;
+  $("runTestBtn").textContent = "Run Test";
+
+  console.log("Test cancelled by user");
+}
+
+// Update test run status
+async function updateTestRun() {
+  if (!state.currentRunId) return;
+
+  try {
+    const res = await fetch(`${API_BASE}/test-runs/${state.currentRunId}`);
+    const data = await res.json();
+
+    const { test_run, responses, aggregates } = data;
+
+    // Update status
+    if (test_run.status === "completed") {
+      showStatus("completed", `Test completed at ${new Date(test_run.created_at).toLocaleString()}`);
+      stopPolling();
+      displayResults(data);
+      loadLogs();
+
+      // Hide cancel button and re-enable run button
+      $("cancelTestBtn").classList.add("hidden");
+      $("runTestBtn").disabled = false;
+      $("runTestBtn").textContent = "Run Test";
+    } else if (test_run.status === "failed") {
+      showStatus("failed", `Test failed: ${test_run.error_message || "Unknown error"}`);
+      stopPolling();
+      loadLogs();
+
+      // Hide cancel button and re-enable run button
+      $("cancelTestBtn").classList.add("hidden");
+      $("runTestBtn").disabled = false;
+      $("runTestBtn").textContent = "Run Test";
+    } else {
+      // Still running - show progress
+      const progress = `${responses.length} responses collected...`;
+      $("progressInfo").textContent = progress;
     }
 
-    if (!topicId) {
-      // Show error message
-      console.info("No match found");
-      $("matchError").classList.remove("hidden");
+  } catch (err) {
+    console.error("Error updating test run:", err);
+  }
+}
+
+// Display results
+function displayResults(data) {
+  const { responses, aggregates } = data;
+
+  $("resultsSection").classList.remove("hidden");
+
+  // Aggregate scores
+  $("overallAvg").textContent = aggregates.overall_average?.toFixed(2) || "-";
+  $("totalResponses").textContent = aggregates.total_responses || "0";
+  $("scoredResponses").textContent = aggregates.scored_responses || "0";
+
+  // Per-model averages
+  const perModelContainer = $("perModelScores");
+  perModelContainer.innerHTML = "";
+
+  for (const [modelId, avg] of Object.entries(aggregates.per_model_average || {})) {
+    const modelName = state.models.find(m => m.id === modelId)?.name || modelId;
+    const bar = el("div", "flex items-center gap-3");
+    const label = el("div", "w-32 text-sm font-medium", modelName);
+    const scoreBar = el("div", "flex-1 bg-slate-200 rounded-full h-6 relative");
+    const fill = el("div", "bg-blue-600 h-6 rounded-full flex items-center justify-center text-white text-xs font-semibold");
+    fill.style.width = `${(avg / 10) * 100}%`;
+    fill.textContent = avg.toFixed(2);
+    scoreBar.appendChild(fill);
+    bar.appendChild(label);
+    bar.appendChild(scoreBar);
+    perModelContainer.appendChild(bar);
+  }
+
+  // Score grid
+  renderScoreGrid(responses);
+
+  // Detailed responses
+  renderDetailedResponses(responses);
+}
+
+// Render score grid
+function renderScoreGrid(responses) {
+  const table = $("scoreGrid");
+  const thead = table.querySelector("thead tr");
+  const tbody = table.querySelector("tbody");
+
+  // Clear existing
+  thead.innerHTML = "<th class='border p-2 text-left'>Question</th>";
+  tbody.innerHTML = "";
+
+  // Get unique models and questions
+  const models = [...new Set(responses.map(r => r.model_id))];
+  const questions = [...new Set(responses.map(r => r.question_id))];
+
+  // Add model headers
+  models.forEach(modelId => {
+    const modelName = state.models.find(m => m.id === modelId)?.name || modelId;
+    const th = el("th", "border p-2 text-center", modelName);
+    thead.appendChild(th);
+  });
+
+  // Add rows for each question
+  questions.forEach(questionId => {
+    const row = el("tr", "hover:bg-slate-50");
+
+    // Question cell
+    const questionCell = el("td", "border p-2 font-medium", questionId);
+    row.appendChild(questionCell);
+
+    // Score cells for each model
+    models.forEach(modelId => {
+      const response = responses.find(r => r.question_id === questionId && r.model_id === modelId);
+      const score = response?.score || 0;
+
+      // Color code by score
+      let bgColor = "bg-red-100";
+      if (score >= 8) bgColor = "bg-green-100";
+      else if (score >= 6) bgColor = "bg-yellow-100";
+      else if (score >= 4) bgColor = "bg-orange-100";
+
+      const cell = el("td", `border p-2 text-center ${bgColor} font-semibold`, score > 0 ? score.toFixed(1) : "-");
+      row.appendChild(cell);
+    });
+
+    tbody.appendChild(row);
+  });
+}
+
+// Render detailed responses
+function renderDetailedResponses(responses) {
+  const container = $("detailedResponses");
+  container.innerHTML = "";
+
+  // Group by question
+  const byQuestion = {};
+  responses.forEach(r => {
+    if (!byQuestion[r.question_id]) {
+      byQuestion[r.question_id] = [];
+    }
+    byQuestion[r.question_id].push(r);
+  });
+
+  // Render each question's responses
+  for (const [questionId, questionResponses] of Object.entries(byQuestion)) {
+    const questionBlock = el("div", "border rounded-lg p-4 bg-slate-50");
+
+    const header = el("div", "font-bold text-lg mb-2", `${questionId}: ${questionResponses[0].question_text}`);
+    questionBlock.appendChild(header);
+
+    const groundTruth = el("div", "mb-3 p-3 bg-blue-50 rounded border-l-4 border-blue-600");
+    const gtLabel = el("div", "font-semibold text-sm text-blue-800 mb-1", "Ground Truth:");
+    const gtText = el("div", "text-sm", questionResponses[0].ground_truth);
+    groundTruth.appendChild(gtLabel);
+    groundTruth.appendChild(gtText);
+    questionBlock.appendChild(groundTruth);
+
+    // Model responses
+    questionResponses.forEach(response => {
+      const modelName = state.models.find(m => m.id === response.model_id)?.name || response.model_id;
+
+      const responseBlock = el("div", "mb-2 p-3 bg-white rounded border");
+      const responseHeader = el("div", "flex justify-between items-center mb-2");
+      const modelLabel = el("div", "font-semibold", modelName);
+      const score = el("div", "text-lg font-bold text-blue-600", `${response.score}/10`);
+      responseHeader.appendChild(modelLabel);
+      responseHeader.appendChild(score);
+
+      const responseText = el("div", "text-sm text-slate-700", response.model_response);
+
+      const metadata = el("div", "text-xs text-slate-500 mt-2");
+      const similarity = response.scoring_metadata?.cosine_similarity;
+      metadata.textContent = `Response time: ${response.response_time_ms}ms | Similarity: ${similarity ? similarity.toFixed(3) : 'N/A'}`;
+
+      responseBlock.appendChild(responseHeader);
+      responseBlock.appendChild(responseText);
+      responseBlock.appendChild(metadata);
+      questionBlock.appendChild(responseBlock);
+    });
+
+    container.appendChild(questionBlock);
+  }
+}
+
+// Load logs
+async function loadLogs() {
+  if (!state.currentRunId) return;
+
+  try {
+    const res = await fetch(`${API_BASE}/test-runs/${state.currentRunId}/logs`);
+    const data = await res.json();
+
+    $("logsSection").classList.remove("hidden");
+
+    const logEntries = $("logEntries");
+    logEntries.innerHTML = "";
+
+    data.logs.forEach(log => {
+      const entry = el("div", "text-xs");
+
+      let levelColor = "text-slate-600";
+      if (log.level === "ERROR") levelColor = "text-red-600";
+      else if (log.level === "WARNING") levelColor = "text-yellow-600";
+      else if (log.level === "INFO") levelColor = "text-blue-600";
+
+      const timestamp = new Date(log.timestamp).toLocaleTimeString();
+      entry.innerHTML = `<span class="text-slate-400">${timestamp}</span> <span class="${levelColor} font-semibold">[${log.level}]</span> ${log.message}`;
+
+      logEntries.appendChild(entry);
+    });
+
+  } catch (err) {
+    console.error("Error loading logs:", err);
+  }
+}
+
+// Load test history
+async function loadTestHistory() {
+  try {
+    const res = await fetch(`${API_BASE}/test-runs?limit=10`);
+    const data = await res.json();
+
+    const container = $("testHistory");
+    container.innerHTML = "";
+
+    if (data.test_runs.length === 0) {
+      container.innerHTML = "<p class='text-slate-500'>No test runs yet</p>";
       return;
     }
 
-    console.info("Routing to topic:", topicId);
-    routeTo(topicId);
-  } else {
-    // No text entered - show error
-    $("matchError").textContent = "Please enter a topic or choose one below.";
-    $("matchError").classList.remove("hidden");
-  }
-});
+    data.test_runs.forEach(run => {
+      const runEl = el("div", "border rounded-lg p-3 hover:bg-slate-50 cursor-pointer");
+      runEl.addEventListener("click", () => loadTestRun(run.run_id));
 
-function routeTo(topicId) {
-  state.topic = topicId;
-  state.plan = $("plan").value;
-  state.zip = $("zip").value;
-  state.qa = [];
-  renderCard();
-  renderQA();
-  console.info("route", {topic: topicId, plan: state.plan, zip: state.zip});
-}
+      const header = el("div", "flex justify-between items-center");
+      const runId = el("div", "font-mono text-sm", run.run_id.slice(0, 8));
+      const status = el("div", `text-sm font-semibold ${run.status === 'completed' ? 'text-green-600' : run.status === 'failed' ? 'text-red-600' : 'text-blue-600'}`, run.status);
+      header.appendChild(runId);
+      header.appendChild(status);
 
-// Card rendering
-function renderCard() {
-  // Find topic by id
-  const topic = state.data.topics.find(t => t.id === state.topic);
-  if (!topic) return;
+      const details = el("div", "text-xs text-slate-600 mt-1");
+      const date = new Date(run.created_at).toLocaleString();
+      const models = run.models_tested.length;
+      details.textContent = `${date} | ${models} models`;
 
-  $("cardSection").classList.remove("hidden");
-  const card = $("card");
-  card.innerHTML = "";
-
-  const header = el("div", "mb-2");
-  const title = el("h2", "text-xl font-semibold", topic.title || state.topic);
-  header.appendChild(title);
-  card.appendChild(header);
-
-  // Add summary if present
-  if (topic.summary) {
-    const summary = el("p", "text-sm text-slate-600 mb-2", topic.summary);
-    card.appendChild(summary);
-  }
-
-  const meta = el("div", "text-sm text-slate-600 mb-4");
-  meta.textContent = `ZIP: ${state.zip || "n/a"} • Plan: ${state.plan || "n/a"}`;
-  if (topic.last_updated) {
-    meta.textContent += ` • Updated: ${topic.last_updated}`;
-  }
-  card.appendChild(meta);
-
-  // Add source link if present
-  if (topic.source) {
-    const sourceLink = el("a", "text-sm text-blue-600 hover:underline mb-3 block", "View official source");
-    sourceLink.href = topic.source;
-    sourceLink.target = "_blank";
-    sourceLink.rel = "noopener";
-    card.appendChild(sourceLink);
-  }
-
-  if (topic.kind === "do") {
-    const stepsH = el("h3", "font-semibold mt-3 mb-1", "What to do next");
-    card.appendChild(stepsH);
-
-    const steps = el("ol", "list-decimal ml-5 space-y-1");
-    (topic.steps || []).forEach(stepText => {
-      const li = el("li", "leading-relaxed", stepText);
-      steps.appendChild(li);
+      runEl.appendChild(header);
+      runEl.appendChild(details);
+      container.appendChild(runEl);
     });
-    card.appendChild(steps);
-  } else {
-    // Learn card
-    const pointsH = el("h3", "font-semibold mt-2 mb-1", "Key points");
-    card.appendChild(pointsH);
-    const points = el("ul", "list-disc ml-5 space-y-1");
-    (topic.points || []).forEach(p => points.appendChild(el("li","",p)));
-    card.appendChild(points);
+
+  } catch (err) {
+    console.error("Error loading test history:", err);
+    alert("Failed to load test history");
   }
-
-  // Show QA section
-  renderQA();
 }
 
-// QA rendering
-function renderQA() {
-  $("qaSection").classList.remove("hidden");
-  const topic = state.data.topics.find(t => t.id === state.topic);
-  // Suggested
-  const sug = $("suggestedQ");
-  sug.innerHTML = "";
-  (topic?.followups || []).forEach(q => {
-    const b = el("button","px-3 py-2 rounded-xl border border-slate-300 hover:bg-slate-100 text-sm", q);
-    b.addEventListener("click", () => answerQuestion(q));
-    sug.appendChild(b);
-  });
+// Load a specific test run
+async function loadTestRun(runId) {
+  state.currentRunId = runId;
 
-  // Thread
-  const wrap = $("qaThread");
-  wrap.innerHTML = "";
-  state.qa.forEach(item => {
-    const card = el("div","border rounded-xl p-3");
-    const q = el("div","font-semibold mb-1","Q: " + item.q);
-    const a = el("div","", "A: " + item.a);
-    const meta = el("div","text-xs text-slate-500 mt-1", `${item.source} • ${new Date(item.ts).toLocaleString()}`);
-    card.appendChild(q); card.appendChild(a); card.appendChild(meta);
-    wrap.appendChild(card);
-  });
-}
+  try {
+    const res = await fetch(`${API_BASE}/test-runs/${runId}`);
+    const data = await res.json();
 
-$("askBtn").addEventListener("click", () => {
-  const q = $("qaInput").value.trim();
-  if (!q) return;
-  $("qaInput").value = "";
-  answerQuestion(q);
-});
+    const { test_run } = data;
 
-function answerQuestion(q) {
-  const topic = state.data.topics.find(t => t.id === state.topic);
-  // Very simple heuristic answers:
-  let a = "Thanks for your question. ";
-  if (/cost|price|\$0|free/i.test(q)) {
-    a += "Costs vary by plan and location. Preferred pharmacies and in-network providers are usually cheaper.";
-  } else if (/prior auth|authorization/i.test(q)) {
-    a += "Some Medicare Advantage plans require prior authorization. Call your plan to confirm before scheduling.";
-  } else if (/network|in[- ]?network|out[- ]?of[- ]?network/i.test(q)) {
-    a += "Using in-network providers helps avoid extra charges. Use your plan's provider finder.";
-  } else if (/codes|cpt|hcpcs/i.test(q)) {
-    a += "Ask your clinician for the CPT/HCPCS codes. You can share those with your plan to estimate costs.";
-  } else if (/apply|enroll|sign up/i.test(q)) {
-    a += "Check the official Medicare or Social Security website for enrollment information, or call 1-800-MEDICARE.";
-  } else {
-    a += "For more details, please check the official source link on this card or contact your plan directly.";
+    $("statusSection").classList.remove("hidden");
+    showStatus(test_run.status, `Test from ${new Date(test_run.created_at).toLocaleString()}`);
+
+    if (test_run.status === "completed") {
+      displayResults(data);
+    }
+
+    loadLogs();
+
+  } catch (err) {
+    console.error("Error loading test run:", err);
+    alert("Failed to load test run");
   }
-
-  state.qa.push({ q, a, source: "qa", ts: new Date().toISOString() });
-  renderQA();
-  console.info("ask_question", {topic: state.topic, q});
 }
+
+// Initialize on page load
+init();
