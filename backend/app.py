@@ -96,11 +96,11 @@ async def create_test_run(request: TestRunRequest, background_tasks: BackgroundT
     if not request.models:
         raise HTTPException(status_code=400, detail="At least one model must be selected")
 
-    # Start test run in background
-    background_tasks.add_task(run_test, request.models, db, request.quick_test)
-
     # Create the test run record immediately to get run_id
     run_id = db.create_test_run(request.models)
+
+    # Start test run in background with the run_id
+    background_tasks.add_task(run_test, request.models, db, request.quick_test, run_id)
 
     return {
         "run_id": run_id,

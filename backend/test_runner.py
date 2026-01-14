@@ -20,6 +20,7 @@ async def run_test(
     models: List[str],
     db: DatabaseManager,
     quick_test: bool = False,
+    run_id: str = None,
     questions_file: str = "data/questions_v1.json"
 ) -> str:
     """
@@ -29,6 +30,7 @@ async def run_test(
         models: List of model IDs to test
         db: Database manager instance
         quick_test: If True, only run first question (for testing)
+        run_id: Optional run_id to use (if not provided, creates new one)
         questions_file: Path to questions JSON file
 
     Returns:
@@ -43,8 +45,10 @@ async def run_test(
     if quick_test:
         questions = questions[:1]
 
-    # Create test run
-    run_id = db.create_test_run(models, question_set_version)
+    # Create test run if run_id not provided
+    if run_id is None:
+        run_id = db.create_test_run(models, question_set_version)
+
     db.log(run_id, "INFO", f"Starting test run with {len(models)} models and {len(questions)} questions")
 
     try:
